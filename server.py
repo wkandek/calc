@@ -9,6 +9,7 @@ hostName = "0.0.0.0"
 serverPort = 8080
 
 # statistics variables
+duration = 0
 wellformed = 0
 nonwellformed = 0
 
@@ -140,13 +141,18 @@ def write_healthz(self):
     self.wfile.write(bytes("nonwellformed=", "utf-8"))
     self.wfile.write(bytes(str(nonwellformed), "utf-8"))
     self.wfile.write(bytes("<br>", "utf-8"))
+    self.wfile.write(bytes("duration=", "utf-8"))
+    self.wfile.write(bytes(str(duration), "utf-8"))
+    self.wfile.write(bytes("<br>", "utf-8"))
     self.wfile.write(bytes("</body></html>", "utf-8"))
 
 
 class CalcServer(BaseHTTPRequestHandler):
 
     def do_GET(self):
+        global duration
         # react to health checks, everything else is a request for a form
+        start = time.time()
         if "/healthz" == self.path[0:8]:
             write_healthz(self)
         elif "/api" == self.path[0:4]:
@@ -164,6 +170,7 @@ class CalcServer(BaseHTTPRequestHandler):
             self.wfile.write(bytes(str(outstr), "utf-8"))
         else:
             write_form(self,"")
+        duration = duration + time.time() - start
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) 
