@@ -114,12 +114,14 @@ def p_error(p):
     nonwellformed = nonwellformed + 1
 
 
-def write_form(self):
+def write_form(self,result):
     self.send_response(200)
     self.send_header("Content-type", "text/html")
     self.end_headers()
     self.wfile.write(bytes("<html><head><title>Calc</title></head>", "utf-8"))
     self.wfile.write(bytes("<body>", "utf-8"))
+    self.wfile.write(bytes(str(result), "utf-8"))
+    self.wfile.write(bytes("<br>", "utf-8"))
     self.wfile.write(bytes("<form action='parse' method='post'><input name='tocalc' type='text'><br><input type='submit'></form>", "utf-8"))
     self.wfile.write(bytes("</body></html>", "utf-8"))
 
@@ -161,7 +163,7 @@ class CalcServer(BaseHTTPRequestHandler):
             outstr = "{"+"\"operation\":\"{}\",\"result\":\"{}\"".format(operation,result)+"}"
             self.wfile.write(bytes(str(outstr), "utf-8"))
         else:
-            write_form(self)
+            write_form(self,"")
 
     def do_POST(self):
         content_length = int(self.headers['Content-Length']) 
@@ -185,11 +187,7 @@ class CalcServer(BaseHTTPRequestHandler):
             ulogstr = unquote(logstr)
             operation = ulogstr.split("=",1)[1]
             result = parser.parse(operation)
-            self.send_header("Content-type", "text/html")
-            self.end_headers()
-#            self.wfile.write(bytes(str(self.path), "utf-8"))
-#            self.wfile.write(bytes(str(result), "utf-8"))
-#            write_form(self)
+            write_form(self, result)
 
 if __name__ == "__main__":
     webServer = HTTPServer((hostName, serverPort), CalcServer)
