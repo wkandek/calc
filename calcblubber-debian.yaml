@@ -1,0 +1,11 @@
+version: v4
+base: docker-registry.wikimedia.org/python3:0.0.2
+runs: { insecurely: true }
+apt: { packages: [python3-ply] }
+variants:
+  calc:
+      copies:
+          - from: local
+            source: ./server.py
+            destination: ./server.py
+      entrypoint: ["python3", "server.py"]
