@@ -1,0 +1,8 @@
+FROM python:latest
+COPY Entrypoint.sh /
+COPY tests/test01.py /
+COPY server.py /
+RUN pip3 install ply psutil pytest requests
+EXPOSE 8080
+CMD ["./Entrypoint.sh"]
+
